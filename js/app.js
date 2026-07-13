@@ -724,6 +724,13 @@ function renderProfileSection() {
   const pendingCount = tasks.filter(t => t.status !== 'Done' && !t.archived).length;
   const archivedCount = tasks.filter(t => t.archived).length;
   const subjectsCount = subjects.length;
+
+  const totalActiveTasks = completedCount + pendingCount;
+  const readinessPercentage =
+    totalActiveTasks === 0
+      ? 0
+      : Math.round((completedCount / totalActiveTasks) * 100);
+
   const username = localStorage.getItem('studyplan_username') || 'StudyPlan User';
   const email = localStorage.getItem('studyplan_email') || 'user@studyplan.app';
   const joinedDate = localStorage.getItem('studyplan_joined') || 'June 2026';
@@ -771,6 +778,10 @@ function renderProfileSection() {
           <div>
             <span class="profile-stat-value">${subjectsCount}</span>
             <span>Subjects</span>
+          </div>
+          <div>
+            <span class="profile-stat-value">${readinessPercentage}%</span>
+            <span>Readiness</span>
           </div>
         </div>
       </section>
@@ -1764,6 +1775,17 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (downloadBtn) {
+    downloadBtn.addEventListener('click', () => {
+      currentView = 'review';
+      document.querySelector('.cal-section').classList.add('hidden');
+      document.getElementById('focus-section').classList.add('hidden');
+      document.getElementById('tasks-section').classList.remove('hidden');
+      updateSidebarActive('download-btn');
+      renderReviewTable();
+    });
+  }
+
   const calPrev = document.getElementById('cal-prev');
   if (calPrev) {
     calPrev.addEventListener('click', () => {
@@ -1952,10 +1974,6 @@ pasteInput.addEventListener('input', () => {
     }
 });
 
-downloadBtn.addEventListener('click', () => {
-  downloadData();
-});
-
 const fileInput = document.getElementById('file-input');
 const dropZone = document.getElementById('drop-zone');
 
@@ -2064,9 +2082,6 @@ if (quoteEl) {
 
   quoteEl.textContent = quotes[index];
 }
-calendarDownloadBtn.addEventListener('click', () => {
-  downloadCalendar();
-});
 
 // ================= AUTH FRONTEND =================
 
